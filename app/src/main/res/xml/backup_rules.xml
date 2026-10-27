@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- android:allowBackup=true : only user settings (playlists / EQ) are backed up,
+     never the media files themselves. -->
+<full-backup-content>
+    <include domain="file" path="playlists.json" />
+    <include domain="sharedpref" path="avioiva_prefs.xml" />
+</full-backup-content>
