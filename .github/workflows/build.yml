@@ -1,1 +1,64 @@
+# =============================================================================
+#  AVIOIVA Player - CI build robot
+# -----------------------------------------------------------------------------
+#  Every push (and any manual run) compiles the app on GitHub's servers and
+#  uploads the APKs as downloadable artifacts. No local tooling required.
+#
+#  Where to find the APKs:
+#    Repo -> "Actions" tab -> latest run -> "Artifacts" section ->
+#      - AVIOIVA-Player-debug-apk            (ready to install)
+#      - AVIOIVAPlayer-release-unsigned-apk (smaller, needs signing to install)
+# =============================================================================
 
+name: Build APKs
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build debug & release APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle (with dependency caching)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build debug and release APKs
+        run: ./gradlew assembleDebug assembleRelease --stacktrace
+
+      # Quick sanity report so the Actions log shows what was produced.
+      - name: List build outputs
+        run: |
+          echo "APK outputs:"
+          ls -lh app/build/outputs/apk/debug/ || true
+          ls -lh app/build/outputs/apk/release/ || true
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AVIOIVA-Player-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+      - name: Upload release APK (unsigned)
+        uses: actions/upload-artifact@v4
+        with:
+          name: AVIOIVAPlayer-release-unsigned-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
