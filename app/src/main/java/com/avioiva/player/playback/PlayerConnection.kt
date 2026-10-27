@@ -94,7 +94,7 @@ class PlayerConnection(
             object : FutureCallback<MediaController> {
                 override fun onSuccess(result: MediaController) {
                     controller = result
-                    result.addListener(playerListener, MoreExecutors.directExecutor())
+                    result.addListener(playerListener)
                     refreshFrom(result)
                     startTicker()
                 }

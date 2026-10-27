@@ -13,8 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.BassBoost
 import androidx.compose.material.icons.rounded.Equalizer
+import androidx.compose.material.icons.rounded.Speaker
 import androidx.compose.material.icons.rounded.SpatialAudio
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -138,7 +138,7 @@ fun EqualizerScreen(vm: PlayerViewModel) {
 
         // -------- bass boost --------
         EffectSection(
-            icon = { Icon(Icons.Rounded.BassBoost, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.Speaker, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = "Bass Boost",
             enabled = state.bassEnabled,
             strength = state.bassStrength,
