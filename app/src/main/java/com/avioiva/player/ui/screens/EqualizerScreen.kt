@@ -38,6 +38,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.ui.PlayerViewModel
+import com.avioiva.player.ui.components.AvioivaWordmark
+import com.avioiva.player.ui.components.LogoButton
 import java.util.Locale
 
 /**
@@ -47,7 +49,7 @@ import java.util.Locale
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EqualizerScreen(vm: PlayerViewModel) {
+fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
     val state by vm.equalizer.state.collectAsStateWithLifecycle()
     var presetMenuOpen by remember { mutableStateOf(false) }
 
@@ -56,7 +58,10 @@ fun EqualizerScreen(vm: PlayerViewModel) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
     ) {
-        TopAppBar(title = { Text("Equalizer") })
+        TopAppBar(
+            title = { AvioivaWordmark() },
+            actions = { LogoButton(onClick = onOpenAbout) },
+        )
 
         Row(
             modifier = Modifier

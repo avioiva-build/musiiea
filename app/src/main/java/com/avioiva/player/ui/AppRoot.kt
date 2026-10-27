@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Album
 import androidx.compose.material.icons.rounded.Equalizer
@@ -48,18 +50,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.avioiva.player.R
 import com.avioiva.player.data.Album
 import com.avioiva.player.data.Folder
 import com.avioiva.player.data.Playlist
 import com.avioiva.player.data.Track
 import com.avioiva.player.ui.components.AddToPlaylistDialog
 import com.avioiva.player.ui.components.Artwork
+import com.avioiva.player.ui.screens.AboutScreen
 import com.avioiva.player.ui.screens.AlbumsScreen
 import com.avioiva.player.ui.screens.AllSongsScreen
 import com.avioiva.player.ui.screens.AlbumDetailScreen
@@ -83,6 +90,7 @@ private sealed interface Detail {
     data class FolderDetail(val folder: Folder) : Detail
     data class PlaylistDetail(val playlistId: String) : Detail
     data object AllSongs : Detail
+    data object About : Detail
 }
 
 @Composable
@@ -163,16 +171,22 @@ fun AppRoot(vm: PlayerViewModel = viewModel()) {
                     vm = vm,
                     onOpenAllSongs = { openDetail(Detail.AllSongs) },
                     onOpenAlbum = { openDetail(Detail.AlbumDetail(it)) },
+                    onOpenAbout = { openDetail(Detail.About) },
                 )
                 Tab.Folders -> FoldersScreen(
                     vm = vm,
                     onOpenFolder = { openDetail(Detail.FolderDetail(it)) },
+                    onOpenAbout = { openDetail(Detail.About) },
                 )
                 Tab.Playlists -> PlaylistsScreen(
                     vm = vm,
                     onOpenPlaylist = { openDetail(Detail.PlaylistDetail(it.id)) },
+                    onOpenAbout = { openDetail(Detail.About) },
                 )
-                Tab.Equalizer -> EqualizerScreen(vm = vm)
+                Tab.Equalizer -> EqualizerScreen(
+                    vm = vm,
+                    onOpenAbout = { openDetail(Detail.About) },
+                )
             }
 
             // Detail overlays sit on top of the tab content.
@@ -205,6 +219,9 @@ fun AppRoot(vm: PlayerViewModel = viewModel()) {
                             vm = vm,
                             onBack = { openDetail(null) },
                             onAddToPlaylist = { addToPlaylistTrack = it },
+                        )
+                        Detail.About -> AboutScreen(
+                            onClose = { openDetail(null) },
                         )
                     }
                 }
@@ -297,11 +314,13 @@ private fun PermissionScreen(onGrant: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                imageVector = Icons.Rounded.MusicNote,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(64.dp),
+            Image(
+                painter = painterResource(R.drawable.avioiva_logo),
+                contentDescription = "AVIOIVA",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(96.dp)
+                    .clip(RoundedCornerShape(24.dp)),
             )
             Spacer(Modifier.height(24.dp))
             Text(

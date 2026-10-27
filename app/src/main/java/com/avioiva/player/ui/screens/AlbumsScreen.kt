@@ -46,7 +46,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.data.Album
 import com.avioiva.player.ui.PlayerViewModel
 import com.avioiva.player.ui.components.Artwork
+import com.avioiva.player.ui.components.AvioivaWordmark
 import com.avioiva.player.ui.components.EmptyState
+import com.avioiva.player.ui.components.LogoButton
 
 /**
  * "Albums" tab: an "All songs" banner followed by an album grid, with a
@@ -58,6 +60,7 @@ fun AlbumsScreen(
     vm: PlayerViewModel,
     onOpenAllSongs: () -> Unit,
     onOpenAlbum: (Album) -> Unit,
+    onOpenAbout: () -> Unit = {},
 ) {
     val albums by vm.albums.collectAsStateWithLifecycle()
     val scanning by vm.scanning.collectAsStateWithLifecycle()
@@ -74,7 +77,7 @@ fun AlbumsScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text("Albums") },
+            title = { AvioivaWordmark() },
             actions = {
                 IconButton(onClick = {
                     searchOpen = !searchOpen
@@ -85,6 +88,7 @@ fun AlbumsScreen(
                         contentDescription = "Search",
                     )
                 }
+                LogoButton(onClick = onOpenAbout)
             },
         )
 

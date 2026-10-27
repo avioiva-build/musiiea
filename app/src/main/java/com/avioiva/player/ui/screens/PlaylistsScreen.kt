@@ -47,7 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.data.Playlist
 import com.avioiva.player.ui.PlayerViewModel
+import com.avioiva.player.ui.components.AvioivaWordmark
 import com.avioiva.player.ui.components.EmptyState
+import com.avioiva.player.ui.components.LogoButton
 import com.avioiva.player.ui.components.TextInputDialog
 
 /**
@@ -56,7 +58,11 @@ import com.avioiva.player.ui.components.TextInputDialog
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlaylistsScreen(vm: PlayerViewModel, onOpenPlaylist: (Playlist) -> Unit) {
+fun PlaylistsScreen(
+    vm: PlayerViewModel,
+    onOpenPlaylist: (Playlist) -> Unit,
+    onOpenAbout: () -> Unit = {},
+) {
     val playlists by vm.playlists.playlists.collectAsStateWithLifecycle()
 
     var showCreate by rememberSaveable { mutableStateOf(false) }
@@ -71,7 +77,10 @@ fun PlaylistsScreen(vm: PlayerViewModel, onOpenPlaylist: (Playlist) -> Unit) {
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            TopAppBar(title = { Text("Playlists") })
+            TopAppBar(
+                title = { AvioivaWordmark() },
+                actions = { LogoButton(onClick = onOpenAbout) },
+            )
 
             if (playlists.isEmpty()) {
                 EmptyState("No playlists yet.\nTap + to create your first one.")

@@ -38,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.data.Folder
 import com.avioiva.player.ui.PlayerViewModel
+import com.avioiva.player.ui.components.AvioivaWordmark
 import com.avioiva.player.ui.components.EmptyState
+import com.avioiva.player.ui.components.LogoButton
 
 /**
  * "Folders" tab: every directory that contains music, for people who keep a
@@ -46,7 +48,11 @@ import com.avioiva.player.ui.components.EmptyState
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FoldersScreen(vm: PlayerViewModel, onOpenFolder: (Folder) -> Unit) {
+fun FoldersScreen(
+    vm: PlayerViewModel,
+    onOpenFolder: (Folder) -> Unit,
+    onOpenAbout: () -> Unit = {},
+) {
     val folders by vm.folders.collectAsStateWithLifecycle()
     val scanning by vm.scanning.collectAsStateWithLifecycle()
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -59,7 +65,7 @@ fun FoldersScreen(vm: PlayerViewModel, onOpenFolder: (Folder) -> Unit) {
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { Text("Folders") },
+            title = { AvioivaWordmark() },
             actions = {
                 IconButton(onClick = {
                     searchOpen = !searchOpen
@@ -70,6 +76,7 @@ fun FoldersScreen(vm: PlayerViewModel, onOpenFolder: (Folder) -> Unit) {
                         contentDescription = "Search",
                     )
                 }
+                LogoButton(onClick = onOpenAbout)
             },
         )
 
