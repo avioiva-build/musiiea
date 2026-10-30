@@ -19,8 +19,16 @@
 
     <!--
         NOTE: There is deliberately NO android.permission.INTERNET.
-        AVIOIVA Player is 100% offline - it cannot phone home.
+        MUSIIEA is 100% offline - it cannot phone home. The "YT Music" button
+        merely hands over to the installed YouTube Music app (or the browser),
+        which uses its own network access.
     -->
+
+    <!-- Lets the app detect the YouTube Music app for the "YT Music"
+         hand-off button (needed for package visibility on Android 11+). -->
+    <queries>
+        <package android:name="com.google.android.apps.youtube.music" />
+    </queries>
 
     <application
         android:name=".AvioivaApplication"

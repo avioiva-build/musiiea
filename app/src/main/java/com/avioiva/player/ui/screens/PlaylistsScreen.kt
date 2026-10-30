@@ -47,7 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.data.Playlist
 import com.avioiva.player.ui.PlayerViewModel
-import com.avioiva.player.ui.components.AvioivaWordmark
+import com.avioiva.player.ui.components.MusiieaWordmark
 import com.avioiva.player.ui.components.EmptyState
 import com.avioiva.player.ui.components.LogoButton
 import com.avioiva.player.ui.components.TextInputDialog
@@ -78,7 +78,7 @@ fun PlaylistsScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             TopAppBar(
-                title = { AvioivaWordmark() },
+                title = { MusiieaWordmark() },
                 actions = { LogoButton(onClick = onOpenAbout) },
             )
 

@@ -3,6 +3,7 @@ package com.avioiva.player.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -18,31 +19,33 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.padding
 import com.avioiva.player.R
 
 /**
- * AVIOIVA brand identity used across the app.
+ * Brand identities used across the app.
  *
- * The wordmark mimics the styling of the brand icon: a clean geometric
- * sans with wide letter spacing and the signature teal-cyan-violet glow.
+ * MUSIIEA is the music player app; AVIOIVA is the independent brand
+ * behind it. Both wordmarks mimic the styling of the brand icons: a clean
+ * geometric sans with wide letter spacing and the signature
+ * orange -> pink -> violet -> blue gradient taken from the MUSIIEA logo.
  */
 
-private val BrandGradientColors
+private val MusiieaGradientColors
     @Composable get() = listOf(
-        Color(0xFF2DD4BF), // teal
-        Color(0xFF38BDF8), // cyan
-        Color(0xFFA78BFA), // violet
+        Color(0xFFFF8A00), // orange
+        Color(0xFFF0338D), // hot pink
+        Color(0xFF8B5CF6), // violet
+        Color(0xFF38BDF8), // sky blue (the note)
     )
 
-/** "AVIOIVA" gradient wordmark, optionally with the small PLAYER subtitle. */
+/** "MUSIIEA" gradient wordmark - the app identity shown in the top bars. */
 @Composable
-fun AvioivaWordmark(showSubtitle: Boolean = true, modifier: Modifier = Modifier) {
+fun MusiieaWordmark(showSubtitle: Boolean = true, modifier: Modifier = Modifier) {
     Column(modifier = modifier) {
         Text(
-            text = "AVIOIVA",
+            text = "MUSIIEA",
             style = TextStyle(
-                brush = Brush.horizontalGradient(BrandGradientColors),
+                brush = Brush.horizontalGradient(MusiieaGradientColors),
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 4.sp,
@@ -59,6 +62,21 @@ fun AvioivaWordmark(showSubtitle: Boolean = true, modifier: Modifier = Modifier)
             )
         }
     }
+}
+
+/** "AVIOIVA" gradient wordmark - the developer brand, used on the About page. */
+@Composable
+fun AvioivaWordmark(modifier: Modifier = Modifier) {
+    Text(
+        text = "AVIOIVA",
+        style = TextStyle(
+            brush = Brush.horizontalGradient(MusiieaGradientColors),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Black,
+            letterSpacing = 4.sp,
+        ),
+        modifier = modifier,
+    )
 }
 
 /** Circular AVIOIVA logo badge for top bars - opens the About page. */

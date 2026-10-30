@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PlayArrow
 import androidx.compose.material.icons.rounded.QueueMusic
@@ -36,6 +37,7 @@ import androidx.compose.material.icons.rounded.VolumeUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -54,6 +56,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,6 +64,7 @@ import com.avioiva.player.playback.PlayerConnection
 import com.avioiva.player.ui.PlayerViewModel
 import com.avioiva.player.ui.components.Artwork
 import com.avioiva.player.util.Format
+import com.avioiva.player.util.YTMusic
 import androidx.media3.common.Player
 
 /**
@@ -72,6 +76,7 @@ import androidx.media3.common.Player
 @Composable
 fun NowPlayingScreen(vm: PlayerViewModel, onClose: () -> Unit) {
     val connection = vm.connection
+    val context = LocalContext.current
 
     val isPlaying by connection.isPlaying.collectAsStateWithLifecycle()
     val title by connection.currentTitle.collectAsStateWithLifecycle()
@@ -263,6 +268,22 @@ fun NowPlayingScreen(vm: PlayerViewModel, onClose: () -> Unit) {
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        // ---- YT Music hand-off ----
+        FilledTonalButton(
+            onClick = { YTMusic.openSearch(context, "$title $artist") },
+            enabled = title.isNotEmpty(),
+        ) {
+            Icon(
+                Icons.Rounded.MusicNote,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text("YT Music")
         }
 
         Spacer(Modifier.height(4.dp))

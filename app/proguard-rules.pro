@@ -1,4 +1,4 @@
-# AVIOIVA Player R8 rules.
+# MUSIIEA R8 rules (developed by AVIOIVA).
 #
 # Media3 (ExoPlayer), Jetpack Compose and androidx libraries ship their own
 # consumer ProGuard/R8 rules inside their AARs, so very little is needed here.

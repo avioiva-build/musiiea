@@ -20,5 +20,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AVIOIVA Player"
+rootProject.name = "MUSIIEA"
 include(":app")

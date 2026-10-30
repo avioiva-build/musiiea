@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.data.Folder
 import com.avioiva.player.ui.PlayerViewModel
-import com.avioiva.player.ui.components.AvioivaWordmark
+import com.avioiva.player.ui.components.MusiieaWordmark
 import com.avioiva.player.ui.components.EmptyState
 import com.avioiva.player.ui.components.LogoButton
 
@@ -65,7 +65,7 @@ fun FoldersScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(
-            title = { AvioivaWordmark() },
+            title = { MusiieaWordmark() },
             actions = {
                 IconButton(onClick = {
                     searchOpen = !searchOpen

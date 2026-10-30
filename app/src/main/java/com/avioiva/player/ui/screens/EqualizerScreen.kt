@@ -16,6 +16,7 @@ import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Equalizer
 import androidx.compose.material.icons.rounded.Speaker
 import androidx.compose.material.icons.rounded.SpatialAudio
+import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,14 +39,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.avioiva.player.ui.PlayerViewModel
-import com.avioiva.player.ui.components.AvioivaWordmark
+import com.avioiva.player.ui.components.MusiieaWordmark
 import com.avioiva.player.ui.components.LogoButton
 import java.util.Locale
 
 /**
- * "Equalizer" tab: multi-band EQ with device presets, Bass Boost and a 3D
- * Surround (Virtualizer) effect. All effects attach to the player's audio
- * session and apply live, even mid-song.
+ * "Equalizer" tab: multi-band EQ with device presets, Bass Boost, Treble and
+ * a 3D Surround (Virtualizer) effect. All effects attach to the player's
+ * audio session and apply live, even mid-song.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +60,7 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
             .verticalScroll(rememberScrollState()),
     ) {
         TopAppBar(
-            title = { AvioivaWordmark() },
+            title = { MusiieaWordmark() },
             actions = { LogoButton(onClick = onOpenAbout) },
         )
 
@@ -153,6 +154,19 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+        // -------- treble (high-shelf, +/- 6 dB) --------
+        EffectSection(
+            icon = { Icon(Icons.Rounded.Tune, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+            title = "Treble",
+            enabled = state.trebleEnabled,
+            strength = state.trebleValue,
+            onToggle = { vm.equalizer.setTrebleEnabled(it) },
+            onStrength = { vm.equalizer.setTrebleValue(it) },
+            valueText = { "%+.1f dB".format(Locale.US, (it - 500) * 6f / 500f) },
+        )
+
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
         // -------- 3D surround --------
         EffectSection(
             icon = { Icon(Icons.Rounded.SpatialAudio, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary) },
@@ -214,6 +228,7 @@ private fun EffectSection(
     strength: Int,
     onToggle: (Boolean) -> Unit,
     onStrength: (Int) -> Unit,
+    valueText: (Int) -> String = { "${it / 10}%" },
 ) {
     Row(
         modifier = Modifier
@@ -238,7 +253,7 @@ private fun EffectSection(
                 enabled = enabled,
             )
             Text(
-                text = "${(strength / 10)}%",
+                text = valueText(strength),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

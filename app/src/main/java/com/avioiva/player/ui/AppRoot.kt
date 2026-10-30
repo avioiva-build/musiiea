@@ -324,12 +324,12 @@ private fun PermissionScreen(onGrant: () -> Unit) {
             )
             Spacer(Modifier.height(24.dp))
             Text(
-                text = "AVIOIVA Player needs your music library",
+                text = "MUSIIEA needs your music library",
                 style = MaterialTheme.typography.titleLarge,
             )
             Spacer(Modifier.height(12.dp))
             Text(
-                text = "Grant access to audio files so AVIOIVA can list and play the " +
+                text = "Grant access to audio files so MUSIIEA can list and play the " +
                     "songs stored on this device. Everything stays offline - " +
                     "the app has no internet permission at all.",
                 style = MaterialTheme.typography.bodyMedium,

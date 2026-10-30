@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -90,7 +91,7 @@ fun AboutScreen(onClose: () -> Unit) {
             )
 
             Spacer(Modifier.height(24.dp))
-            AvioivaWordmark(showSubtitle = false)
+            AvioivaWordmark()
             Spacer(Modifier.height(6.dp))
 
             Text(
@@ -112,7 +113,7 @@ fun AboutScreen(onClose: () -> Unit) {
             Spacer(Modifier.height(24.dp))
             HorizontalDivider()
             SectionTitle("App Information")
-            InfoRow(label = "App", value = "AVIOIVA Player")
+            InfoRow(label = "App", value = stringResource(R.string.app_name))
             InfoRow(label = "Version", value = version)
             InfoRow(label = "Developed by", value = "AVIOIVA")
 

@@ -13,10 +13,12 @@ import java.util.Locale
  * Owns the audio effects chain:
  *  - [Equalizer]    multi-band EQ with device-provided presets (usually 5 bands)
  *  - [BassBoost]    low-frequency amplifier
+ *  - [Treble]       high-shelf lift/cut via a dedicated second [Equalizer]
+ *                   instance (top band full offset, band below it half)
  *  - [Virtualizer]  spatial "3D surround" widening
  *
- * All three are attached to ExoPlayer's audio session, so they only affect
- * AVIOIVA Player's output. Settings persist in SharedPreferences and are
+ * All of them are attached to ExoPlayer's audio session, so they only affect
+ * MUSIIEA's output. Settings persist in SharedPreferences and are
  * re-applied automatically whenever a new audio session is created.
  */
 class EqualizerManager(context: Context) {
@@ -31,6 +33,8 @@ class EqualizerManager(context: Context) {
         val activePreset: Int = -1,
         val bassEnabled: Boolean = false,
         val bassStrength: Int = 500,
+        val trebleEnabled: Boolean = false,
+        val trebleValue: Int = 500,   // 0..1000 slider; 500 = flat (0 dB)
         val surroundEnabled: Boolean = false,
         val surroundStrength: Int = 500,
     )
@@ -40,6 +44,7 @@ class EqualizerManager(context: Context) {
 
     private var equalizer: Equalizer? = null
     private var bassBoost: BassBoost? = null
+    private var trebleEq: Equalizer? = null
     private var virtualizer: Virtualizer? = null
 
     private val _state = MutableStateFlow(loadState())
@@ -121,6 +126,19 @@ class EqualizerManager(context: Context) {
         } catch (_: Throwable) {
             virtualizer = null
         }
+
+        try {
+            // Android ships no dedicated Treble effect, so a second Equalizer
+            // instance acts as a high-shelf (see [applyTrebleTo]). Effects on
+            // the same session chain together, and this instance is fully
+            // independent of the main EQ's band sliders.
+            val te = Equalizer(PRIORITY, audioSessionId)
+            trebleEq = te
+            applyTrebleTo(te)
+            te.setEnabled(_state.value.trebleEnabled)
+        } catch (_: Throwable) {
+            trebleEq = null
+        }
     }
 
     /** Detach and free all effect instances. */
@@ -130,10 +148,13 @@ class EqualizerManager(context: Context) {
         try { equalizer?.release() } catch (_: Throwable) {}
         try { bassBoost?.enabled = false } catch (_: Throwable) {}
         try { bassBoost?.release() } catch (_: Throwable) {}
+        try { trebleEq?.enabled = false } catch (_: Throwable) {}
+        try { trebleEq?.release() } catch (_: Throwable) {}
         try { virtualizer?.enabled = false } catch (_: Throwable) {}
         try { virtualizer?.release() } catch (_: Throwable) {}
         equalizer = null
         bassBoost = null
+        trebleEq = null
         virtualizer = null
         _state.value = _state.value.copy(attached = false)
     }
@@ -188,6 +209,40 @@ class EqualizerManager(context: Context) {
         persist()
     }
 
+    fun setTrebleEnabled(value: Boolean) {
+        _state.value = _state.value.copy(trebleEnabled = value)
+        try { trebleEq?.enabled = value } catch (_: Throwable) {}
+        persist()
+    }
+
+    /** Slider value 0..1000; 500 = flat, endpoints = +/- [TREBLE_MAX_MB]. */
+    fun setTrebleValue(value: Int) {
+        val clamped = value.coerceIn(0, 1000)
+        _state.value = _state.value.copy(trebleValue = clamped)
+        trebleEq?.let { te -> try { applyTrebleTo(te) } catch (_: Throwable) {} }
+        persist()
+    }
+
+    /**
+     * Shapes [te] into a high-shelf "treble" curve: the top band gets the
+     * full offset and the band below it half, which lifts/cuts the highs
+     * without touching the rest of the spectrum.
+     */
+    private fun applyTrebleTo(te: Equalizer) {
+        try {
+            val count = te.numberOfBands.toInt()
+            if (count < 2) return
+            val range = te.bandLevelRange
+            val low = range[0].toInt()
+            val high = range[1].toInt()
+            val offset = ((_state.value.trebleValue - 500) * TREBLE_MAX_MB) / 500
+            val top = (count - 1).toShort()
+            te.setBandLevel(top, offset.coerceIn(low, high).toShort())
+            te.setBandLevel((top - 1).toShort(), (offset / 2).coerceIn(low, high).toShort())
+        } catch (_: Throwable) {
+        }
+    }
+
     fun setSurroundEnabled(value: Boolean) {
         _state.value = _state.value.copy(surroundEnabled = value)
         try { virtualizer?.enabled = value } catch (_: Throwable) {}
@@ -214,6 +269,8 @@ class EqualizerManager(context: Context) {
             activePreset = prefs.getInt(KEY_PRESET, -1),
             bassEnabled = prefs.getBoolean(KEY_BASS_ENABLED, false),
             bassStrength = prefs.getInt(KEY_BASS_STRENGTH, 500),
+            trebleEnabled = prefs.getBoolean(KEY_TREBLE_ENABLED, false),
+            trebleValue = prefs.getInt(KEY_TREBLE_VALUE, 500),
             surroundEnabled = prefs.getBoolean(KEY_SURROUND_ENABLED, false),
             surroundStrength = prefs.getInt(KEY_SURROUND_STRENGTH, 500),
         )
@@ -227,6 +284,8 @@ class EqualizerManager(context: Context) {
             .putInt(KEY_PRESET, s.activePreset)
             .putBoolean(KEY_BASS_ENABLED, s.bassEnabled)
             .putInt(KEY_BASS_STRENGTH, s.bassStrength)
+            .putBoolean(KEY_TREBLE_ENABLED, s.trebleEnabled)
+            .putInt(KEY_TREBLE_VALUE, s.trebleValue)
             .putBoolean(KEY_SURROUND_ENABLED, s.surroundEnabled)
             .putInt(KEY_SURROUND_STRENGTH, s.surroundStrength)
             .apply()
@@ -250,8 +309,13 @@ class EqualizerManager(context: Context) {
         const val KEY_PRESET = "eq.preset"
         const val KEY_BASS_ENABLED = "bass.enabled"
         const val KEY_BASS_STRENGTH = "bass.strength"
+        const val KEY_TREBLE_ENABLED = "treble.enabled"
+        const val KEY_TREBLE_VALUE = "treble.value"
         const val KEY_SURROUND_ENABLED = "surround.enabled"
         const val KEY_SURROUND_STRENGTH = "surround.strength"
+
+        /** Max treble shelf offset in milli-bel: +/-600 mB = +/-6 dB. */
+        const val TREBLE_MAX_MB = 600
 
         fun defaultBandLabels() = listOf("60 Hz", "230 Hz", "910 Hz", "3.6 kHz", "14 kHz")
     }

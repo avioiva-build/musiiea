@@ -1,9 +1,9 @@
-# AVIOIVA Player 🎵
+# MUSIIEA 🎵
 
 A **fully offline**, lightweight, dark-first local music player for Android —
-built with Kotlin, Jetpack Compose (Material 3 / Material You) and Media3
-ExoPlayer. **The app has no INTERNET permission at all**: it physically cannot
-phone home.
+developed by **AVIOIVA**. Built with Kotlin, Jetpack Compose
+(Material 3 / Material You) and Media3 ExoPlayer. **The app has no INTERNET
+permission at all**: it physically cannot phone home.
 
 ---
 
@@ -32,12 +32,20 @@ phone home.
 **Audio customisation**
 - **Multi-band Equalizer** with your device's presets (typically 5 bands),
   editable per-band sliders with dB readout
-- **Bass Boost** and **3D Surround** (Virtualizer) effects
+- **Bass Boost**, **Treble** (±6 dB high-shelf) and **3D Surround**
+  (Virtualizer) effects
 - Effects apply live to playback and are remembered between sessions
 
 **Quality of life**
 - **Sleep timer** (5–90 min) with optional **volume fade-out** — great for
   falling asleep to music or audiobooks
+- **YT Music hand-off** — a "YT Music" button in Now Playing opens the
+  official YouTube Music app (or the web player in your browser) with the
+  current track pre-filled in search, so switching to streaming takes one
+  tap. MUSIIEA itself stays 100% offline: it merely launches the other app,
+  and has no INTERNET permission of its own.
+- **About page** — tap the round AVIOIVA logo badge in any top bar for brand
+  info, app version and contact details
 
 **Privacy & footprint**
 - 100% **offline**: no INTERNET permission, no analytics, no tracking
@@ -51,18 +59,18 @@ phone home.
 The repository ships with a GitHub Actions workflow (`.github/workflows/build.yml`)
 that builds the APKs for you on every push:
 
-1. Create a new repository on GitHub (e.g. `avioiva-player`), **upload this
+1. Create a new repository on GitHub (e.g. `musiiea`), **upload this
    project** (keep the folder structure — `.github/`, `app/`, `gradle/`, etc.
    must be at the repo root). Easiest ways:
    - GitHub web UI: "uploading an existing file", or
-   - `git init && git add . && git commit -m "AVIOIVA Player" && git remote add
-     origin https://github.com/<you>/avioiva-player.git && git push -u origin main`
+   - `git init && git add . && git commit -m "MUSIIEA" && git remote add
+     origin https://github.com/<you>/musiiea.git && git push -u origin main`
 2. Open the **Actions** tab on your repo. A run named **"Build APKs"** starts
    automatically (you can also press **"Run workflow"** manually).
 3. Wait ~5-10 minutes for the green check.
 4. Open the run, scroll to **Artifacts**, and download:
-   - **AVIOIVA-Player-debug-apk** → install this one; it's ready to use
-   - **AVIOIVAPlayer-release-unsigned-apk** → smaller build; needs your own
+   - **MUSIIEA-debug-apk** → install this one; it's ready to use
+   - **MUSIIEA-release-unsigned-apk** → smaller build; needs your own
      signing key before it can install
 5. Copy the APK to your phone, tap it, allow "install from unknown sources",
    done.
@@ -111,14 +119,17 @@ AVIOIVAPlayer/
 │       ├── playback/
 │       │   ├── PlaybackService.kt     ← background Media3 service (gapless)
 │       │   ├── PlayerConnection.kt    ← MediaController bridge → StateFlows
-│       │   ├── EqualizerManager.kt    ← EQ + BassBoost + Virtualizer
+│       │   ├── EqualizerManager.kt    ← EQ + BassBoost + Treble + Virtualizer
 │       │   └── SleepTimer.kt          ← countdown with fade-out
+│       ├── util/
+│       │   ├── Format.kt              ← time/size formatting
+│       │   └── YTMusic.kt             ← "YT Music" deep-link hand-off
 │       └── ui/
 │           ├── AppRoot.kt             ← tabs, mini-player, permission gate
 │           ├── PlayerViewModel.kt
 │           ├── theme/Theme.kt         ← dark Material You
 │           └── screens/               ← Albums, Folders, Playlists,
-│                                        Equalizer, NowPlaying, details
+│                                        Equalizer, NowPlaying, About, details
 └── gradle/wrapper/                    ← Gradle 8.13 wrapper
 ```
 
