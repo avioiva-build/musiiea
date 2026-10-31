@@ -128,14 +128,19 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
         }
 
         // -------- band sliders --------
+        // Sliders are always live: dragging a band auto-enables the EQ so
+        // the effect is audible immediately (previously the sliders sat
+        // disabled until the master switch was flipped, which felt broken).
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             state.bandLabels.forEachIndexed { band, label ->
                 BandRow(
                     label = label,
                     level = state.bandLevels.getOrElse(band) { 0 },
                     range = state.bandRange,
-                    enabled = state.enabled,
-                    onChange = { vm.equalizer.setBandLevel(band, it) },
+                    onChange = {
+                        if (!state.enabled) vm.equalizer.setEnabled(true)
+                        vm.equalizer.setBandLevel(band, it)
+                    },
                 )
             }
         }
@@ -149,7 +154,10 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
             enabled = state.bassEnabled,
             strength = state.bassStrength,
             onToggle = { vm.equalizer.setBassEnabled(it) },
-            onStrength = { vm.equalizer.setBassStrength(it) },
+            onStrength = {
+                if (!state.bassEnabled) vm.equalizer.setBassEnabled(true)
+                vm.equalizer.setBassStrength(it)
+            },
         )
 
         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
@@ -161,7 +169,10 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
             enabled = state.trebleEnabled,
             strength = state.trebleValue,
             onToggle = { vm.equalizer.setTrebleEnabled(it) },
-            onStrength = { vm.equalizer.setTrebleValue(it) },
+            onStrength = {
+                if (!state.trebleEnabled) vm.equalizer.setTrebleEnabled(true)
+                vm.equalizer.setTrebleValue(it)
+            },
             valueText = { "%+.1f dB".format(Locale.US, (it - 500) * 6f / 500f) },
         )
 
@@ -174,7 +185,10 @@ fun EqualizerScreen(vm: PlayerViewModel, onOpenAbout: () -> Unit = {}) {
             enabled = state.surroundEnabled,
             strength = state.surroundStrength,
             onToggle = { vm.equalizer.setSurroundEnabled(it) },
-            onStrength = { vm.equalizer.setSurroundStrength(it) },
+            onStrength = {
+                if (!state.surroundEnabled) vm.equalizer.setSurroundEnabled(true)
+                vm.equalizer.setSurroundStrength(it)
+            },
         )
 
         Spacer(Modifier.padding(bottom = 24.dp))
@@ -187,7 +201,6 @@ private fun BandRow(
     label: String,
     level: Int,
     range: IntRange,
-    enabled: Boolean,
     onChange: (Int) -> Unit,
 ) {
     var value by remember(label, level) { mutableStateOf(level.toFloat()) }
@@ -208,7 +221,6 @@ private fun BandRow(
                 onChange(it.toInt())
             },
             valueRange = range.first.toFloat()..range.last.toFloat(),
-            enabled = enabled,
             modifier = Modifier.weight(1f),
         )
         Text(
@@ -250,7 +262,6 @@ private fun EffectSection(
                 value = strength.toFloat(),
                 onValueChange = { onStrength(it.toInt()) },
                 valueRange = 0f..1000f,
-                enabled = enabled,
             )
             Text(
                 text = valueText(strength),

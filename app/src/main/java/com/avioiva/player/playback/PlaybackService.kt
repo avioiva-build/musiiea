@@ -44,15 +44,34 @@ class PlaybackService : MediaSessionService() {
             .setWakeMode(C.WAKE_MODE_LOCAL)    // keep the CPU awake with the screen off
             .build()
 
+        val effects = app.equalizerManager
+
+        // Re-attach defensively whenever playback (re)starts: some devices
+        // re-route the audio session, and a fresh attach is harmless.
+        fun ensureEffectsAttached() {
+            val id = player.audioSessionId
+            if (id != C.AUDIO_SESSION_ID_UNSET && !effects.state.value.attached) {
+                effects.attach(id)
+            }
+        }
+
         player.addListener(object : Player.Listener {
             override fun onAudioSessionIdChanged(audioSessionId: Int) {
-                app.equalizerManager.attach(audioSessionId)
+                effects.attach(audioSessionId)
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                if (playWhenReady) ensureEffectsAttached()
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == Player.STATE_READY) ensureEffectsAttached()
             }
         })
         // The session id may already be allocated before we subscribed.
         val sessionId = player.audioSessionId
         if (sessionId != C.AUDIO_SESSION_ID_UNSET) {
-            app.equalizerManager.attach(sessionId)
+            effects.attach(sessionId)
         }
 
         mediaSession = MediaSession.Builder(this, player)

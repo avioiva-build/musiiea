@@ -235,7 +235,15 @@ fun AppRoot(vm: PlayerViewModel = viewModel()) {
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
         exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
     ) {
-        NowPlayingScreen(vm = vm, onClose = { nowPlayingOpen = false })
+        NowPlayingScreen(
+            vm = vm,
+            onClose = { nowPlayingOpen = false },
+            onOpenEqualizer = {
+                nowPlayingOpen = false
+                tab = Tab.Equalizer
+                detail = null
+            },
+        )
     }
 
     // ---------------- global dialogs ----------------

@@ -31,12 +31,18 @@ permission at all**: it physically cannot phone home.
 
 **Audio customisation**
 - **Multi-band Equalizer** with your device's presets (typically 5 bands),
-  editable per-band sliders with dB readout
+  editable per-band sliders with dB readout — sliders are always live:
+  dragging one auto-enables the effect, so you hear it immediately
 - **Bass Boost**, **Treble** (±6 dB high-shelf) and **3D Surround**
   (Virtualizer) effects
 - Effects apply live to playback and are remembered between sessions
 
 **Quality of life**
+- **Waveform Now Playing** — big rounded artwork, title + artist with a
+  heart (favorites persist) and a 3-dot menu (add to playlist, shuffle,
+  repeat, sleep timer), a per-track **waveform seek bar** (tap or drag to
+  seek) plus a precise slider with times, rewind / play / forward controls,
+  a **Lyrics** panel and a one-tap **equalizer shortcut**
 - **Sleep timer** (5–90 min) with optional **volume fade-out** — great for
   falling asleep to music or audiobooks
 - **YT Music hand-off** — a "YT Music" button in Now Playing opens the

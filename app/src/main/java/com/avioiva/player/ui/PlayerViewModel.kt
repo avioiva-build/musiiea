@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.avioiva.player.AvioivaApplication
 import com.avioiva.player.data.Album
+import com.avioiva.player.data.FavoritesStore
 import com.avioiva.player.data.Folder
 import com.avioiva.player.data.Playlist
 import com.avioiva.player.data.Track
@@ -29,6 +30,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
 
     val connection: PlayerConnection = avioiva.playerConnection
     val playlists = avioiva.playlistStore
+    val favorites: FavoritesStore = avioiva.favorites
     val sleepTimer = avioiva.sleepTimer
     val equalizer = avioiva.equalizerManager
 
@@ -91,6 +93,11 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     fun setShuffle(enabled: Boolean) = connection.setShuffle(enabled)
     fun cycleRepeatMode() = connection.cycleRepeatMode()
     fun setVolume(value: Float) = connection.setVolume(value)
+
+    /** Toggles the heart on the Now Playing screen. */
+    fun toggleFavorite(trackId: String) {
+        favorites.toggle(trackId)
+    }
     fun playNext(track: Track) = connection.playNext(track)
     fun addToQueue(track: Track) = connection.addToQueue(track)
 

@@ -46,6 +46,7 @@ class EqualizerManager(context: Context) {
     private var bassBoost: BassBoost? = null
     private var trebleEq: Equalizer? = null
     private var virtualizer: Virtualizer? = null
+    private var sessionId = 0
 
     private val _state = MutableStateFlow(loadState())
     val state: StateFlow<State> = _state.asStateFlow()
@@ -58,6 +59,7 @@ class EqualizerManager(context: Context) {
     fun attach(audioSessionId: Int) {
         if (audioSessionId == 0) return
         releaseEffects()
+        sessionId = audioSessionId
 
         try {
             val eq = Equalizer(PRIORITY, audioSessionId)
@@ -127,17 +129,29 @@ class EqualizerManager(context: Context) {
             virtualizer = null
         }
 
-        try {
-            // Android ships no dedicated Treble effect, so a second Equalizer
-            // instance acts as a high-shelf (see [applyTrebleTo]). Effects on
-            // the same session chain together, and this instance is fully
-            // independent of the main EQ's band sliders.
-            val te = Equalizer(PRIORITY, audioSessionId)
+        // Treble uses a second Equalizer instance as a high-shelf. It is
+        // created LAZILY only when the user actually turns Treble on, so on
+        // devices that dislike duplicate effect instances nothing changes
+        // while Treble is off.
+        if (_state.value.trebleEnabled) {
+            ensureTreble()?.let { te ->
+                try { te.setEnabled(true) } catch (_: Throwable) {}
+            }
+        }
+    }
+
+    /** Lazily creates the dedicated treble equalizer on the current session. */
+    private fun ensureTreble(): Equalizer? {
+        trebleEq?.let { return it }
+        if (sessionId == 0) return null
+        return try {
+            val te = Equalizer(PRIORITY, sessionId)
             trebleEq = te
             applyTrebleTo(te)
-            te.setEnabled(_state.value.trebleEnabled)
+            te
         } catch (_: Throwable) {
             trebleEq = null
+            null
         }
     }
 
@@ -211,7 +225,11 @@ class EqualizerManager(context: Context) {
 
     fun setTrebleEnabled(value: Boolean) {
         _state.value = _state.value.copy(trebleEnabled = value)
-        try { trebleEq?.enabled = value } catch (_: Throwable) {}
+        if (value) {
+            ensureTreble()?.let { te -> try { te.enabled = true } catch (_: Throwable) {} }
+        } else {
+            try { trebleEq?.enabled = false } catch (_: Throwable) {}
+        }
         persist()
     }
 
@@ -219,7 +237,9 @@ class EqualizerManager(context: Context) {
     fun setTrebleValue(value: Int) {
         val clamped = value.coerceIn(0, 1000)
         _state.value = _state.value.copy(trebleValue = clamped)
-        trebleEq?.let { te -> try { applyTrebleTo(te) } catch (_: Throwable) {} }
+        if (_state.value.trebleEnabled) {
+            ensureTreble()?.let { te -> try { applyTrebleTo(te) } catch (_: Throwable) {} }
+        }
         persist()
     }
 

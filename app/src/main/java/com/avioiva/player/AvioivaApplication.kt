@@ -1,6 +1,7 @@
 package com.avioiva.player
 
 import android.app.Application
+import com.avioiva.player.data.FavoritesStore
 import com.avioiva.player.data.PlaylistStore
 import com.avioiva.player.playback.EqualizerManager
 import com.avioiva.player.playback.PlayerConnection
@@ -19,6 +20,7 @@ class AvioivaApplication : Application() {
     val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     val playlistStore: PlaylistStore by lazy { PlaylistStore(this, applicationScope) }
+    val favorites: FavoritesStore by lazy { FavoritesStore(this) }
     val equalizerManager: EqualizerManager by lazy { EqualizerManager(this) }
     val sleepTimer: SleepTimer by lazy { SleepTimer(applicationScope) }
     val playerConnection: PlayerConnection by lazy {
